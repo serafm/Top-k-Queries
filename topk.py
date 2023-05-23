@@ -1,4 +1,6 @@
 # Serafeim Themistokleous 4555
+import time
+
 
 # Read scores from txt file
 def read_scores(filename):
@@ -16,20 +18,23 @@ def read_scores(filename):
     return R
 
 
-def updateTopK(Wk, R, x_id, k):
+def updateTopK(Wk, b, x_id, k):
     if len(Wk) == k:
-        for key in Wk:
-            if R[x_id] > Wk[key]:
-                del Wk[key]
-                Wk[x_id] = round(R[x_id], 2)
-                break
+        key = min(Wk, key=Wk.get)
+        # for key in Wk:
+        if b[x_id] > Wk[key]:
+            del Wk[key]
+            Wk[x_id] = round(b[x_id], 2)
+            # break
     else:
-        Wk[x_id] = round(R[x_id], 2)
+        Wk[x_id] = round(b[x_id], 2)
 
 
-def topK(k, filename1, filename2, filename3):
+def topK(k, R, filename2, filename3):
 
-    R = read_scores(filename1)
+    # Lower Bound / Final  dictionaries
+    lower_bounds = dict()
+    final_scores = dict()
 
     # Count how many lines have been read from both files seq1 and seq2
     counter = 0
@@ -37,12 +42,10 @@ def topK(k, filename1, filename2, filename3):
     # Top-k objects
     Wk = dict()
 
-    # threshold
-    T = 0
-
-    # Objects(ID's) read
+    # Objects(ID's) have been read
     seen_objects = []
 
+    # Boolean for termination of the topK
     terminate = False
 
     # Start reading the files seq1.txt and seq2.txt alternately
@@ -56,47 +59,65 @@ def topK(k, filename1, filename2, filename3):
             # Read seq1.txt
             seq1_value_id, seq1_value = seq1_object.split()
             seq1_value_id = int(seq1_value_id)
-            seq1_value = float(seq1_value)
-
-            # Sum up scores if lower bound or upper bound of object in seq1
-            R[seq1_value_id] += seq1_value
+            seq1_value = round(float(seq1_value), 2)
             counter += 1
+
+            # Sum up scores if lower bound OR final score of object in seq1
+            if seq1_value_id in seen_objects:
+                final_scores[seq1_value_id] = round(lower_bounds[seq1_value_id] + seq1_value, 2)
+            else:
+                lower_bounds[seq1_value_id] = round(R[seq1_value_id] + seq1_value, 2)
+
+            # Update Wk values (Top-k)
+            if seq1_value_id in seen_objects:
+                updateTopK(Wk, final_scores, seq1_value_id, k)
+            else:
+                updateTopK(Wk, lower_bounds, seq1_value_id, k)
 
             # Add object's ID into seen objects
             seen_objects.append(seq1_value_id)
 
-            # Update Wk values
-            updateTopK(Wk, R, seq1_value_id, k)
-
             # Read seq2.txt
             seq2_value_id, seq2_value = seq2_object.split()
             seq2_value_id = int(seq2_value_id)
-            seq2_value = float(seq2_value)
-
-            # Sum up scores if lower bound or upper bound of object in seq2
-            R[seq2_value_id] += seq2_value
+            seq2_value = round(float(seq2_value), 2)
             counter += 1
-            
+
+            # Sum up scores if lower bound OR final score of object in seq2
+            if seq2_value_id in seen_objects:
+                final_scores[seq2_value_id] = round(lower_bounds[seq2_value_id] + seq2_value, 2)
+            else:
+                lower_bounds[seq2_value_id] = round(R[seq2_value_id] + seq2_value, 2)
+
+            # Update Wk values (Top-k)
+            if seq2_value_id in seen_objects:
+                updateTopK(Wk, final_scores, seq2_value_id, k)
+            else:
+                updateTopK(Wk, lower_bounds, seq2_value_id, k)
+
             # Add object's ID into seen objects
             seen_objects.append(seq2_value_id)
 
-            # Update Wk values
-            updateTopK(Wk, R, seq2_value_id, k)
+            # Threshold
+            T = round(seq1_value + seq2_value + 5.0, 2)
 
-            # Update threshold value
-            score = seq1_value + seq2_value + 5.0
-            T = max(T, score)
-
+            # If Wk minimum lower bound is smaller than threshold we continue reading the files
             if min(Wk.values()) < T:
                 continue
             else:
                 for x in seen_objects:
-                    if x not in Wk.keys() and (R[x] + seq2_value) > max(Wk.values()):
-                        terminate = False
-                        break
-                    else:
-                        terminate = True
-
+                    # For every seen object we check if the object is not in Wk
+                    if x not in Wk.keys():
+                        # If it's not in the Wk we calculate its upper bound
+                        upper_bound = round(lower_bounds[x] + seq2_value, 2)
+                        # If it's upper bound is greater than the minimum value of the Wk then we continue reading the files
+                        if upper_bound > min(Wk.values()):
+                            terminate = False
+                            break
+                        else:
+                            # Else ser the terminate value to True for termination
+                            # The top k scores have been read so no need to continue
+                            terminate = True
 
     print("Number of sequential accesses= ", counter)
     print("Top k objects:")
@@ -106,6 +127,10 @@ def topK(k, filename1, filename2, filename3):
 
 
 if __name__ == "__main__":
+
+    # Create array R with the rnd.txt scores
+    R = read_scores('data/rnd.txt')
+
     while True:
         print("For exit press enter")
         print("Input k=", end="")
@@ -114,5 +139,9 @@ if __name__ == "__main__":
         if k == "":
             break
 
-        topK(int(k), 'data/rnd.txt', 'data/seq1.txt', 'data/seq2.txt')
+        start = time.time()
+        topK(int(k), R, 'data/seq1.txt', 'data/seq2.txt')
+        end = time.time()
+        final = round(end - start, 2)
+        print("Time:", final, "ms")
         print("\n")
