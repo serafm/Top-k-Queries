@@ -1,5 +1,6 @@
 # Serafeim Themistokleous 4555
 import time
+import heapq
 
 
 # Read scores from txt file
@@ -18,18 +19,61 @@ def read_scores(filename):
     return R
 
 
-# Update the top k objects (Check if a new score is greater than the minimum)
+class minHeap:
+    def __init__(self):
+        self.heap = []  # Initialize an empty list to store the heap elements
+        self.index = 0  # Initialize an index to track the insertion order of elements
+
+    def push(self, item):
+        # Add an item to the heap
+        # Use the second element of the tuple as the sorting key
+        heapq.heappush(self.heap, (item[1], self.index, item))
+        self.index += 1
+
+    def pop(self):
+        # Remove and return the minimum item from the heap
+        return heapq.heappop(self.heap)[2]
+
+    def min(self):
+        # Get the minimum value in the heap
+        if len(self.heap) > 0:
+            return self.heap[0][0]
+        else:
+            raise IndexError("minHeap is empty")
+
+    def keys(self):
+        # Return a list of keys (first elements) from all the tuples in the heap
+        return [item[2][0] for item in self.heap]
+
+    def is_empty(self):
+        # Check if the heap is empty
+        return len(self.heap) == 0
+
+    def sort(self):
+        # Sort the tuples in the heap based on the second element in descending order
+        sorted_tuples = []
+        while not self.is_empty():
+            sorted_tuples.append(self.pop())
+        sorted_tuples.sort(key=lambda x: x[1], reverse=True)
+        return sorted_tuples
+
+    def size(self):
+        # Return the size of the heap
+        return len(self.heap)
+
+
+# Update the top k objects (Check if a new score is greater than the minimum in heap)
 def updateTopK(Wk, scores, x_id, k):
-    if len(Wk) == k:
-        key = min(Wk, key=Wk.get)
-        if scores[x_id] > Wk[key]:
-            del Wk[key]
-            Wk[x_id] = round(scores[x_id], 2)
+    if Wk.size() == k:
+        if scores[x_id] > Wk.min():
+            Wk.pop()
+            Wk.push((x_id, round(scores[x_id], 2)))
     else:
-        Wk[x_id] = round(scores[x_id], 2)
+        # Initialize the first 5 objects into the Wk heap
+        Wk.push((x_id, round(scores[x_id], 2)))
 
 
-def topK(k, R, filename2, filename3):
+def topK(k, R, filename1, filename2):
 
     # Lower Bound / Final  dictionaries
     lower_bounds = dict()
@@ -39,7 +83,7 @@ def topK(k, R, filename2, filename3):
     counter = 0
 
     # Top-k objects
-    Wk = dict()
+    Wk = minHeap()
 
     # Objects(ID's) have been read
     seen_objects = []
@@ -48,7 +92,7 @@ def topK(k, R, filename2, filename3):
     terminate = False
 
     # Start reading the files seq1.txt and seq2.txt alternately
-    with open(filename2, 'r') as seq1, open(filename3, 'r') as seq2:
+    with open(filename1, 'r') as seq1, open(filename2, 'r') as seq2:
         # for seq1_object, seq2_object in zip(seq1, seq2):
         for seq1_object, seq2_object in zip(seq1, seq2):
             
@@ -101,7 +145,7 @@ def topK(k, R, filename2, filename3):
             T = round(seq1_value + seq2_value + 5.0, 2)
 
             # If Wk minimum lower bound is smaller than threshold we continue reading the files
-            if min(Wk.values()) < T:
+            if Wk.min() < T:
                 continue
             else:
                 for x in seen_objects:
@@ -110,7 +154,7 @@ def topK(k, R, filename2, filename3):
                         # If it's not in the Wk we calculate its upper bound
                         upper_bound = round(lower_bounds[x] + seq2_value, 2)
                         # If it's upper bound is greater than the minimum value of the Wk then we continue reading the files
-                        if upper_bound > min(Wk.values()):
+                        if upper_bound > Wk.min():
                             terminate = False
                             break
                         else:
@@ -120,9 +164,9 @@ def topK(k, R, filename2, filename3):
 
     print("Number of sequential accesses= ", counter)
     print("Top k objects:")
-    Wk = dict(sorted(Wk.items(), key=lambda item: item[1], reverse=True))
-    for id in Wk:
-        print(id, ":", Wk[id])
+    Wk = Wk.sort()
+    for tup in Wk:
+        print(tup[0], ":", tup[1])
 
 
 if __name__ == "__main__":
