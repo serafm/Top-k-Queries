@@ -19,7 +19,7 @@ def read_scores(filename):
     return R
 
 
-class minHeap:
+class MinHeap:
     def __init__(self):
         self.heap = []  # Initialize an empty list to store the heap elements
         self.index = 0  # Initialize an index to track the insertion order of elements
@@ -83,7 +83,7 @@ def topK(k, R, filename1, filename2):
     counter = 0
 
     # Top-k objects
-    Wk = minHeap()
+    Wk = MinHeap()
 
     # Objects(ID's) have been read
     seen_objects = []
