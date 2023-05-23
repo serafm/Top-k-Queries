@@ -18,16 +18,15 @@ def read_scores(filename):
     return R
 
 
-def updateTopK(Wk, b, x_id, k):
+# Update the top k objects (Check if a new score is greater than the minimum)
+def updateTopK(Wk, scores, x_id, k):
     if len(Wk) == k:
         key = min(Wk, key=Wk.get)
-        # for key in Wk:
-        if b[x_id] > Wk[key]:
+        if scores[x_id] > Wk[key]:
             del Wk[key]
-            Wk[x_id] = round(b[x_id], 2)
-            # break
+            Wk[x_id] = round(scores[x_id], 2)
     else:
-        Wk[x_id] = round(b[x_id], 2)
+        Wk[x_id] = round(scores[x_id], 2)
 
 
 def topK(k, R, filename2, filename3):
