@@ -169,7 +169,7 @@ def topK(k, R, filename1, filename2):
         print(tup[0], ":", tup[1])
 
 
-if __name__ == "__main__":
+def main():
 
     # Create array R with the rnd.txt scores
     R = read_scores('data/rnd.txt')
@@ -188,3 +188,6 @@ if __name__ == "__main__":
         final = round(end - start, 2)
         print("Time:", final, "ms")
         print("\n")
+
+
+main()
