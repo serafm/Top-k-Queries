@@ -1,7 +1,6 @@
 # Serafeim Themistokleous 4555
 import time
 import heapq
-from copy import deepcopy
 
 
 # Read scores from txt file
