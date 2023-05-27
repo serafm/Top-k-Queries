@@ -1,4 +1,5 @@
 # Serafeim Themistokleous 4555
+import sys
 import time
 import heapq
 
@@ -74,7 +75,6 @@ def updateTopK(Wk, scores, x_id, k):
 
 
 def topK(k, R, filename1, filename2):
-
     # Lower Bound / Final  dictionaries
     lower_bounds = dict()
     final_scores = dict()
@@ -95,7 +95,7 @@ def topK(k, R, filename1, filename2):
     with open(filename1, 'r') as seq1, open(filename2, 'r') as seq2:
         # for seq1_object, seq2_object in zip(seq1, seq2):
         for seq1_object, seq2_object in zip(seq1, seq2):
-            
+
             if terminate:
                 break
 
@@ -153,6 +153,7 @@ def topK(k, R, filename1, filename2):
                     if x not in Wk.keys():
                         # If it's not in the Wk we calculate its upper bound
                         upper_bound = round(lower_bounds[x] + seq2_value, 2)
+
                         # If it's upper bound is greater than the minimum value of the Wk then we continue reading the files
                         if upper_bound > Wk.min():
                             terminate = False
@@ -170,11 +171,8 @@ def topK(k, R, filename1, filename2):
 
 
 def brute_force(k, filename1, filename2):
-
     # Top-k objects
     Wk = MinHeap()
-
-    counter = 0
 
     # Create array R with the rnd.txt scores
     R_scores = read_scores('data/rnd.txt')
@@ -188,7 +186,6 @@ def brute_force(k, filename1, filename2):
             seq1_value_id, seq1_value = seq1_object.split()
             seq1_value_id = int(seq1_value_id)
             seq1_value = round(float(seq1_value), 2)
-            counter += 1
 
             R_scores[seq1_value_id] += seq1_value
 
@@ -203,7 +200,6 @@ def brute_force(k, filename1, filename2):
             seq2_value_id, seq2_value = seq2_object.split()
             seq2_value_id = int(seq2_value_id)
             seq2_value = round(float(seq2_value), 2)
-            counter += 1
 
             R_scores[seq2_value_id] += seq2_value
 
@@ -215,7 +211,6 @@ def brute_force(k, filename1, filename2):
                     Wk.push((seq2_value_id, round(R_scores[seq2_value_id], 2)))
 
     print("Brute Force")
-    print("Number of sequential accesses= ", counter)
     print("Top k objects:")
     Wk = Wk.sort()
     for tup in Wk:
@@ -223,17 +218,17 @@ def brute_force(k, filename1, filename2):
 
 
 def main():
-
     # Create array R with the rnd.txt scores
     R = read_scores('data/rnd.txt')
 
-    while True:
-        print("For exit press enter")
-        print("Input k=", end="")
-        k = input()
+    # Check the number of command line arguments
+    if len(sys.argv) > 1:
+        # Access the first command line argument
+        k = sys.argv[1]
+    else:
+        print("Please provide a number for top-k.")
 
-        if k == "":
-            break
+    while True:
 
         start = time.time()
         topK(int(k), R, 'data/seq1.txt', 'data/seq2.txt')
@@ -244,6 +239,14 @@ def main():
 
         # Perform brute force to check topK() method correctness
         brute_force(int(k), 'data/seq1.txt', 'data/seq2.txt')
+        print()
+        print("For exit press enter")
+
+        print("Input k=", end="")
+        k = input()
+
+        if k == "":
+            break
 
 
 main()
