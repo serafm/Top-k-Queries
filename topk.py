@@ -1,6 +1,5 @@
 # Serafeim Themistokleous 4555
 import sys
-import time
 import heapq
 
 
@@ -170,53 +169,6 @@ def topK(k, R, filename1, filename2):
         print(tup[0], ":", tup[1])
 
 
-def brute_force(k, filename1, filename2):
-    # Top-k objects
-    Wk = MinHeap()
-
-    # Create array R with the rnd.txt scores
-    R_scores = read_scores('data/rnd.txt')
-
-    # Start reading the files seq1.txt and seq2.txt alternately
-    with open(filename1, 'r') as seq1, open(filename2, 'r') as seq2:
-        # for seq1_object, seq2_object in zip(seq1, seq2):
-        for seq1_object, seq2_object in zip(seq1, seq2):
-
-            # Read seq1.txt
-            seq1_value_id, seq1_value = seq1_object.split()
-            seq1_value_id = int(seq1_value_id)
-            seq1_value = round(float(seq1_value), 2)
-
-            R_scores[seq1_value_id] += seq1_value
-
-            if Wk.size() < k:
-                Wk.push((seq1_value_id, round(R_scores[seq1_value_id], 2)))
-            elif Wk.size() == k:
-                if Wk.min() < R_scores[seq1_value_id]:
-                    Wk.pop()
-                    Wk.push((seq1_value_id, round(R_scores[seq1_value_id], 2)))
-
-            # Read seq2.txt
-            seq2_value_id, seq2_value = seq2_object.split()
-            seq2_value_id = int(seq2_value_id)
-            seq2_value = round(float(seq2_value), 2)
-
-            R_scores[seq2_value_id] += seq2_value
-
-            if Wk.size() < k:
-                Wk.push((seq2_value_id, round(R_scores[seq2_value_id], 2)))
-            elif Wk.size() == k:
-                if Wk.min() < R_scores[seq2_value_id]:
-                    Wk.pop()
-                    Wk.push((seq2_value_id, round(R_scores[seq2_value_id], 2)))
-
-    print("Brute Force")
-    print("Top k objects:")
-    Wk = Wk.sort()
-    for tup in Wk:
-        print(tup[0], ":", tup[1])
-
-
 def main():
     # Create array R with the rnd.txt scores
     R = read_scores('data/rnd.txt')
@@ -228,25 +180,7 @@ def main():
     else:
         print("Please provide a number for top-k.")
 
-    while True:
-
-        start = time.time()
-        topK(int(k), R, 'data/seq1.txt', 'data/seq2.txt')
-        end = time.time()
-        final = round(end - start, 2)
-        print("Time:", final, "ms")
-        print("\n")
-
-        # Perform brute force to check topK() method correctness
-        brute_force(int(k), 'data/seq1.txt', 'data/seq2.txt')
-        print()
-        print("For exit press enter")
-
-        print("Input k=", end="")
-        k = input()
-
-        if k == "":
-            break
+    topK(int(k), R, 'data/seq1.txt', 'data/seq2.txt')
 
 
 main()
