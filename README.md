@@ -2,37 +2,48 @@
 
 This repository contains an implementation of top-k query algorithms, designed to efficiently retrieve the k highest or lowest ranked elements from a dataset. The algorithms are implemented in Python and provide various techniques to efficiently process and retrieve top-k queries.
 
-## Table of Contents
+# Top k Algorithm
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Installation](#installation)
-- [Contributing](#contributing)
-- [License](#license)
+This Python script implements the TopK algorithm for finding the top-k objects based on their scores. It reads scores from input files, calculates lower bounds and final scores for each object, and maintains a heap of top-k objects.
 
-## Introduction
+## Prerequisites
 
-In many applications, it is often necessary to retrieve the top-k elements based on certain criteria, such as popularity, relevance, or score. This project provides efficient algorithms to solve the top-k query problem, allowing users to retrieve the k highest or lowest ranked items from a given dataset. The implemented algorithms are suitable for a wide range of applications, including recommendation systems, search engines, and data analysis.
+- Python 3.x
 
-## Features
+## Getting Started
 
-- **Top-k Query Algorithms**: The repository includes several algorithms for performing efficient top-k queries, such as the Threshold Algorithm, the Divide-and-Conquer Algorithm, and the Priority Queue Algorithm. Each algorithm is accompanied by a detailed explanation and usage example.
-- **Variety of Ranking Criteria**: The implemented algorithms support various ranking criteria, allowing users to retrieve top-k elements based on different attributes or scores.
-- **Optimized Performance**: The algorithms are designed to optimize performance and minimize computational complexity, ensuring efficient retrieval of the top-k elements even for large datasets.
-- **Example Datasets**: We provide sample datasets for testing and experimentation. These datasets cover different domains and can be used to evaluate the algorithms' performance.
+1. Clone the repository:
 
-## Installation
+ ```shell
+ git clone <repository-url>
+ ```
+ 
+2. Install the required dependencies:
+ ```shell
+ pip install heapq
+ ```
+ 
+3. Place your input files in the data directory with the following names:
 
-To use this project, follow the steps below:
+  + rnd.txt - contains scores for each object
+  + seq1.txt - contains object IDs and scores
+  + seq2.txt - contains object IDs and scores
 
-1. Clone the repository: `git clone https://github.com/serafm/Top-k-Queries.git`
-2. Run the desired scripts or import the modules in your own code.
+## Usage
+Run the script using the following command:
+  ```shell
+  python3 topk.py <k>
+  ```
+  Replace <k> with the desired value for k, which represents the number of top objects to retrieve. 
+  The script will print the top-k objects along with their scores.
+  
+## Algorithm Overview
 
-## Contributing
-
-Contributions are welcome! If you have suggestions, bug reports, or would like to add new algorithms, please feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE). Feel free to use and modify the code for your own purposes.
-
+   1. Read the scores from the rnd.txt file and store them in an array.
+   2. Initialize a heap (Wk) to store the top-k objects.
+   3. Read object IDs and scores alternately from seq1.txt and seq2.txt.
+   4. Calculate lower bounds and final scores for each object based on the scores from rnd.txt and the input files.
+   5. Update the top-k heap (Wk) with the current object's ID and score if necessary.
+   6. Check a threshold value based on the sum of the current object's score and 5.0.
+   7. If the minimum lower bound in Wk is smaller than the threshold, continue reading the files. Otherwise, terminate the algorithm.
+   8. Sort the Wk heap in descending order of scores and print the top-k objects.  
