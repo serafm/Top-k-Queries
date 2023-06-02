@@ -1,9 +1,5 @@
 # Top-k Queries
 
-This repository contains an implementation of top-k query algorithms, designed to efficiently retrieve the k highest or lowest ranked elements from a dataset. The algorithms are implemented in Python and provide various techniques to efficiently process and retrieve top-k queries.
-
-# Top k Algorithm
-
 This Python script implements the TopK algorithm for finding the top-k objects based on their scores. It reads scores from input files, calculates lower bounds and final scores for each object, and maintains a heap of top-k objects.
 
 ## Prerequisites
