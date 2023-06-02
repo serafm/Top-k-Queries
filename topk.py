@@ -1,4 +1,3 @@
-# Serafeim Themistokleous 4555
 import sys
 import heapq
 
