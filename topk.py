@@ -68,7 +68,7 @@ def updateTopK(Wk, scores, x_id, k):
             Wk.pop()
             Wk.push((x_id, round(scores[x_id], 2)))
     else:
-        # Initialize the first 5 objects into the Wk heap
+        # Initialize the first k objects into the Wk heap
         Wk.push((x_id, round(scores[x_id], 2)))
 
 
